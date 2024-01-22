@@ -220,3 +220,76 @@ let mouse = {
 
     update();
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('ballCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+
+    // ... [rest of the initialization code]
+
+    let animationFrameId;
+
+    // Define the function to start the animation
+    function startAnimation() {
+        if (!animationFrameId) { // Prevent multiple loops
+            update();
+        }
+    }
+
+    // Define the function to stop the animation
+    function stopAnimation() {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+
+    const observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+        if (entry.target.id === 'home') {
+            if (!entry.isIntersecting) {
+                startAnimation();
+            } else {
+                stopAnimation();
+            }
+        }
+    });
+}, {threshold: 0.3}); // Threshold is 50% visibility
+
+// Target the elements to observe
+observer.observe(document.getElementById('home'));
+
+
+
+    function update() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // ... [rest of the update function including ball movement and collision logic]
+
+        // Request the next frame
+        animationFrameId = requestAnimationFrame(update);
+    }
+
+    // ... [rest of the code]
+});
+document.addEventListener('DOMContentLoaded', function() {
+    // ... [rest of your existing DOMContentLoaded function] ...
+
+    const aboutContent = document.getElementById('about-content');
+
+    // Observer for the about section
+    const aboutObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                aboutContent.classList.add('visible'); // Add class to make content visible
+            } else {
+                aboutContent.classList.remove('visible'); // Remove class to hide content
+            }
+        });
+    }, {threshold: 0.6}); // Trigger when 10% of the about section is visible
+
+    // Target the element to observe
+    aboutObserver.observe(document.getElementById('about'));
+
+    // ... [rest of your existing code] ...
+});

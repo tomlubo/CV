@@ -8,7 +8,7 @@ body {
 
 #home {
     height: 100vh;
-    background: linear-gradient(355deg, rgb(0, 0, 0) 0%, rgb(48, 3, 69) 100%);
+    background: linear-gradient(355deg, rgb(48, 3, 69) 0%, rgb(0,0,0) 100%);
     background-attachment: fixed;  /* This ensures the background stays fixed */
     background-repeat: no-repeat;  /* This prevents the background from repeating */
     background-size: cover;        /* This ensures the background covers the entire section */
@@ -95,6 +95,52 @@ section {
 .dropdown:hover .dropdown-content {
     display: block;
 }
+#about {
+    position: relative;
+    height: 100vh;
+    background: linear-gradient(180deg, rgb(48, 3, 69,1) 0%, rgba(0, 1, 51, 1) 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column; /* Aligns content vertically */
+    text-align: center;
+}
+
+#aboutCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Ensures canvas is behind the content */
+}
+
+#about-content {
+    z-index: 2; /* Ensures text appears above the canvas */
+    max-width: 600px; /* Adjust as needed */
+    padding: 20px;
+    opacity: 0; /* Start fully transparent */
+    transform: translateX(50px); /* Start 50px to the right */
+    transition: opacity 1s, transform 1s;
+}
+#about-content {
+    /* ... existing styles ... */
+    opacity: 0; /* Start fully transparent */
+    transform: translateX(50px); /* Start 50px to the right */
+    transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+
+}
+
+#about-content.visible {
+    opacity: 1; /* End fully visible */
+    transform: translateX(0); /* End at the original position */
+}
+
+/* ... rest of your styles ... */
+
+
+
 
 footer {
     background: #333;

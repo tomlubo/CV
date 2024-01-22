@@ -98,7 +98,11 @@ section {
 #about {
     position: relative;
     height: 100vh;
-    background: linear-gradient(180deg, rgb(48, 3, 69,1) 0%, rgba(0, 1, 51, 1) 100%);
+    background: linear-gradient(359deg, rgb(48, 3, 69,1) 0%, rgba(0, 1, 51, 1) 100%);
+    background-attachment: fixed;  /* This ensures the background stays fixed */
+    background-repeat: repeat;  /* This prevents the background from repeating */
+    background-size: cover;        /* This ensures the background covers the entire section */
+    position: relative;
     color: white;
     display: flex;
     align-items: center;
@@ -127,7 +131,7 @@ section {
 #about-content {
     /* ... existing styles ... */
     opacity: 0; /* Start fully transparent */
-    transform: translateX(50px); /* Start 50px to the right */
+    transform: translateX(100px); /* Start 50px to the right */
     transition: opacity 1s ease-in-out, transform 1s ease-in-out;
 
 }
@@ -137,9 +141,29 @@ section {
     transform: translateX(0); /* End at the original position */
 }
 
-/* ... rest of your styles ... */
+#circle-container {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+}
 
+.small-circle {
+    position: absolute;
+    width: 50px; /* Adjust as needed */
+    height: 50px; /* Adjust as needed */
+    border-radius: 50%;
+    background-color: #fff; /* Adjust color as needed */
+    opacity: 0;
+    transition: opacity 3s ease-in-out; /* Smooth transition for opacity */
+}
+.small-circle.fly-away {
+    opacity: 0;
+    /* transform removed from here */
+    transition: transform 3s ease-in-out, opacity 3s ease-in-out;
+}
 
+/* Add more specific styles for each icon as needed */
 
 
 footer {

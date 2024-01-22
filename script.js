@@ -277,19 +277,96 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const aboutContent = document.getElementById('about-content');
 
-    // Observer for the about section
+    const circleContainer = document.getElementById('circle-container');
+    const totalCircles = 6; // Number of small circles
+    const radius = 150; // Radius of the large circle
+
+    // Create small circles and position them around the large circle
+    for (let i = 0; i < totalCircles; i++) {
+        const angle = (i / totalCircles) * Math.PI * 2; // Angle for each circle
+        const x = radius * Math.cos(angle) - 50; // x position
+        const y = radius * Math.sin(angle) - 50; // y position
+
+        const circle = document.createElement('div');
+        circle.classList.add('small-circle');
+        circle.style.left = `${50 + x}px`;
+        circle.style.top = `${50 + y}px`;
+        circle.style.transitionDelay = `${i * 1}s`; // Staggered transition delay
+
+        circleContainer.appendChild(circle);
+    }
+
+    // Observer for the about section (use the same observer as for fading the text)
     const aboutObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                aboutContent.classList.add('visible'); // Add class to make content visible
-            } else {
-                aboutContent.classList.remove('visible'); // Remove class to hide content
-            }
+    entries.forEach(entry => {
+        const smallCircles = document.querySelectorAll('.small-circle');
+
+        if (entry.isIntersecting) {
+            aboutContent.classList.add('visible'); // Add class to make content visible
+            gatherCircles(smallCircles);
+        } else {
+            aboutContent.classList.remove('visible'); // Remove class to hide content
+            disperseCircles(smallCircles);
+        }
+    });
+}, {threshold: 0.8});
+
+function gatherCircles(circles) {
+    circles.forEach((circle, index) => {
+        const angle = (index / circles.length) * Math.PI * 2; // Angle for each circle
+        const x = 100 * Math.cos(angle); // x position
+        const y = 100 * Math.sin(angle); // y position
+
+        // Reset position and opacity
+        circle.style.opacity = 1;
+        circle.style.transform = `translate(-50%, -50%) translateX(${x}px) translateY(${y}px)`;
+        circle.style.transition = 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out';
+        circle.style.transitionDelay = `${index * 0.15}s`; // Staggered transition delay
+    });
+}
+
+function disperseCircles(circles) {
+    circles.forEach(circle => {
+        // Random values for the direction and distance
+        const randomX = (Math.random() - 0.5) * 200; // Adjust range as needed
+        const randomY = (Math.random() - 0.5) * 500; // Adjust range as needed
+
+        // Fly away animation
+        circle.style.transform = `translate(-50%, -50%) scale(0.5) translateX(${randomX}px) translateY(${randomY}px)`;
+        circle.style.opacity = 0;
+        circle.style.transition = 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out';
+        circle.style.transitionDelay = 0.15; // No delay for flying away
+    });
+}
+// Function to apply hover effects
+    function applyHoverEffects(circle) {
+        circle.addEventListener('mouseover', () => {
+            circle.style.width = '55px'; // 20% larger than the base 20px
+            circle.style.height = '55px';
+            circle.style.backgroundColor = 'rgba(121, 78, 184, 1)';
+            circle.style.transition = 'all 0.2s ease-in-out';
+            // Add wobble or libration effect here if needed
         });
-    }, {threshold: 0.6}); // Trigger when 10% of the about section is visible
+
+        circle.addEventListener('mouseout', () => {
+            circle.style.width = '50px'; // Reset to original size
+            circle.style.height = '50px';
+            circle.style.backgroundColor = '#fff'; // Reset to original color
+            circle.style.transition = 'all 0.2s ease-in-out';
+            // Reset any wobble or libration effect here if needed
+        });
+    }
+
+    // Apply hover effects to each small circle
+    const smallCircles = document.querySelectorAll('.small-circle');
+    smallCircles.forEach(circle => {
+        applyHoverEffects(circle);
+    });
 
     // Target the element to observe
     aboutObserver.observe(document.getElementById('about'));
 
-    // ... [rest of your existing code] ...
+
+
+
 });

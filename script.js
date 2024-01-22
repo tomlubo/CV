@@ -289,23 +289,44 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const circle = document.createElement('div');
         circle.classList.add('small-circle');
-        circle.style.left = `${50 + x}px`;
-        circle.style.top = `${50 + y}px`;
+        circle.style.left = `${50+x}px`;
+        circle.style.top = `${50+y}px`;
         circle.style.transitionDelay = `${i * 1}s`; // Staggered transition delay
+        circle.setAttribute('data-text-id', `text${i + 1}`); // Ensure this is set
+        //console.log(circle.getAttribute('data-text-id')); // Check if the attribute is correctly set
+
 
         circleContainer.appendChild(circle);
+         applyHoverEffects(circle,x,y,angle);
     }
 
     // Observer for the about section (use the same observer as for fading the text)
     const aboutObserver = new IntersectionObserver((entries, observer) => {
     entries.forEach(entry => {
         const smallCircles = document.querySelectorAll('.small-circle');
+        const aboutHeader = document.getElementById('about-me-header');
+        const spans = aboutHeader.querySelectorAll('span');
 
         if (entry.isIntersecting) {
+            aboutHeader.classList.add('animate');
             aboutContent.classList.add('visible'); // Add class to make content visible
+            spans.forEach((span, index) => {
+                span.style.animation = 'none';
+                span.offsetHeight; // Trigger reflow
+                span.style.animation = '';
+                span.style.animationDelay = `${index * 0.6}s`; // Staggered delay
+                span.style.animation = 'bounceIn 0.6s ease forwards';
+            });
             gatherCircles(smallCircles);
         } else {
+            aboutHeader.classList.remove('animate');
             aboutContent.classList.remove('visible'); // Remove class to hide content
+            spans.forEach(span => {
+                // Optionally, reset styles when out of view
+                span.style.animation = '';
+                span.style.opacity = '0';
+                span.style.transform = 'translateY(20px)';
+            });
             disperseCircles(smallCircles);
         }
     });
@@ -328,24 +349,45 @@ function gatherCircles(circles) {
 function disperseCircles(circles) {
     circles.forEach(circle => {
         // Random values for the direction and distance
-        const randomX = (Math.random() - 0.5) * 200; // Adjust range as needed
-        const randomY = (Math.random() - 0.5) * 500; // Adjust range as needed
+        const randomX = (Math.random() - 0.5) * 600; // Adjust range as needed
+        const randomY = (Math.random() - 0.5) * 700; // Adjust range as needed
 
         // Fly away animation
         circle.style.transform = `translate(-50%, -50%) scale(0.5) translateX(${randomX}px) translateY(${randomY}px)`;
         circle.style.opacity = 0;
         circle.style.transition = 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out';
-        circle.style.transitionDelay = 0.15; // No delay for flying away
+        circle.style.transitionDelay = 0.01; // No delay for flying away
     });
 }
 // Function to apply hover effects
-    function applyHoverEffects(circle) {
+    function applyHoverEffects(circle,x,y,angle) {
         circle.addEventListener('mouseover', () => {
             circle.style.width = '55px'; // 20% larger than the base 20px
             circle.style.height = '55px';
-            circle.style.backgroundColor = 'rgba(121, 78, 184, 1)';
+            circle.style.backgroundColor = 'rgba(103, 0, 202, 1)';
             circle.style.transition = 'all 0.2s ease-in-out';
-            // Add wobble or libration effect here if needed
+            console.log('Circle hovered'); // Check if hover event is triggered
+            const textId = circle.getAttribute('data-text-id');
+            const textElement = document.getElementById(textId);
+            if (textElement) {
+                textElement.classList.add('visible');
+
+                // Adjust distanceFromCenter to consider the radius of the ring and add some margin
+                const ringRadius = 200; // This should match the radius used to position the circles
+                const additionalMargin = 65; // Adjust this value as needed for spacing between the ring and text
+                const distanceFromCenter = ringRadius + additionalMargin;
+
+                // Calculate the position for the text based on the angle
+                console.log(angle);
+                const textX =  distanceFromCenter * Math.cos(angle)+90;
+                const textY =  distanceFromCenter * Math.sin(angle)+95;
+
+                // Position text element in the radial direction from the center of the ring
+                textElement.style.left = `${circleContainer.offsetWidth / 2 + textX}px`;
+                textElement.style.top = `${circleContainer.offsetHeight / 2 + textY}px`;
+            }
+
+
         });
 
         circle.addEventListener('mouseout', () => {
@@ -353,7 +395,12 @@ function disperseCircles(circles) {
             circle.style.height = '50px';
             circle.style.backgroundColor = '#fff'; // Reset to original color
             circle.style.transition = 'all 0.2s ease-in-out';
-            // Reset any wobble or libration effect here if needed
+            const textId = circle.getAttribute('data-text-id');
+            const textElement = document.getElementById(textId);
+            if (textElement) {
+              console.log('Text element found:', textElement);
+                textElement.classList.remove('visible');
+            }
         });
     }
 

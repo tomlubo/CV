@@ -163,10 +163,10 @@ let mouse = {
                     drawLine(ball, otherBall);
 
                     // Manage connections (limited to 5)
-                    if (ball.connections.length >= 3) {
+                    if (ball.connections.length >= 2) {
                         ball.connections.shift();
                     }
-                    if (otherBall.connections.length >= 3) {
+                    if (otherBall.connections.length >= 2) {
                         otherBall.connections.shift();
                     }
                     ball.connections.push(otherBall);
@@ -213,7 +213,7 @@ let mouse = {
             // Display the temperature
             ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'; // Semi-transparent white
             ctx.font = '20px Arial';
-            ctx.fillText(`Average KE: ${temperature.toFixed(1)}`,750, 40);
+            ctx.fillText(`Average KE: ${temperature.toFixed(1)}`,670, 40);
 
         requestAnimationFrame(update);
     }
@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-}, {threshold: 0.3}); // Threshold is 50% visibility
+}, {threshold: 0.1}); // Threshold is 50% visibility
 
 // Target the elements to observe
 observer.observe(document.getElementById('home'));
@@ -374,7 +374,7 @@ function disperseCircles(circles) {
 
                 // Adjust distanceFromCenter to consider the radius of the ring and add some margin
                 const ringRadius = 200; // This should match the radius used to position the circles
-                const additionalMargin = 65; // Adjust this value as needed for spacing between the ring and text
+                const additionalMargin = 50; // Adjust this value as needed for spacing between the ring and text
                 const distanceFromCenter = ringRadius + additionalMargin;
 
                 // Calculate the position for the text based on the angle

@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let colors = ['green', 'yellow', 'white', 'orange', 'red'];
     let balls = [];
-    let numberOfBalls = 35;
+    let numberOfBalls = 50;
     let ballRadius = 15;
 
     // Initialize balls
@@ -31,7 +31,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function drawBall(ball) {
         ctx.beginPath();
-        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+        if(ball.radius >= 0){
+          ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+          ball.color = "white";
+        }else{
+          ctx.arc(ball.x, ball.y, ball.radius*(-1), 0, Math.PI * 2);
+          ball.color = "red";
+        }
         ctx.fillStyle = ball.color;
         ctx.fill();
         ctx.closePath();
@@ -110,12 +116,20 @@ let mouse = {
         mouse.y = undefined;
     });
 
+    function calculateAverageSpeed(balls) {
+        let totalSpeed = 0;
+        for (let ball of balls) {
+            totalSpeed += 0.5*ball.radius*(ball.dx * ball.dx + ball.dy * ball.dy);
+        }
+        return totalSpeed / balls.length;
+    }
 
     function update() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+        let totalSpeed = 0;
         for(let i = 0; i < balls.length; i++) {
             let ball = balls[i];
+            totalSpeed += Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
             drawBall(ball);
 
             // Wall collision detection
@@ -132,9 +146,8 @@ let mouse = {
             ball.z += ball.dx * 0.1; // Change the 0.1 to adjust the depth speed
 
             // Calculate new radius based on z value, ensuring it's not larger than baseRadius and not negative
-            let newRadius = ball.baseRadius * (ball.z / 200);
+            let newRadius = ball.baseRadius * (ball.z / 100);
             ball.radius = Math.min(Math.max(newRadius, 5), ball.baseRadius); // Clamp value between 1 and baseRadius
-
 
             // Ball collision detection
             for(let j = i + 1; j < balls.length; j++) {
@@ -170,7 +183,7 @@ let mouse = {
 
                 // Max distance that mouse can influence
                 const maxDistance = mouse.radius;
-                let force = (maxDistance - distance)*0.01 / maxDistance;
+                let force = (maxDistance - distance)*0.05 / maxDistance;
 
                 // Ensure the force is not negative
                 if (force < 0) force = 0;
@@ -187,11 +200,20 @@ let mouse = {
                 ball.dy += forceDirectionY * repulsionPower * force;
             }
 
+
             // Draw connections
             ball.connections.forEach(connectedBall => {
                 drawLine(ball, connectedBall);
             });
+
         }
+        let averageSpeed = totalSpeed / balls.length;
+            let temperature = averageSpeed; // Here, temperature is directly proportional to average speed
+
+            // Display the temperature
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'; // Semi-transparent white
+            ctx.font = '20px Arial';
+            ctx.fillText(`Average KE: ${temperature.toFixed(1)}`,750, 40);
 
         requestAnimationFrame(update);
     }

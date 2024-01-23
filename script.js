@@ -269,12 +269,6 @@ observer.observe(document.getElementById('home'));
         // Request the next frame
         animationFrameId = requestAnimationFrame(update);
     }
-
-    // ... [rest of the code]
-});
-document.addEventListener('DOMContentLoaded', function() {
-    // ... [rest of your existing DOMContentLoaded function] ...
-
     const aboutContent = document.getElementById('about-content');
 
     const circleContainer = document.getElementById('circle-container');
@@ -413,7 +407,89 @@ function disperseCircles(circles) {
     // Target the element to observe
     aboutObserver.observe(document.getElementById('about'));
 
+    const experienceCanvas = document.getElementById('experienceCanvas');
+    const ctxExperience = experienceCanvas.getContext('2d');
+    experienceCanvas.width = window.innerWidth;
+    experienceCanvas.height = experienceCanvas.offsetHeight + 200;
 
+    const wave1 = {
+        y: 50,
+        length: 0.05,
+        amplitude: 50,
+        frequency: 0.05,
+        startX: 0, // Start from left for wave1
+        endX: experienceCanvas.width /3 // End at the middle of canvas
+    };
 
+    const wave2 = {
+        y: 50,
+        length: 0.6,
+        amplitude: 50,
+        frequency: 0.1,
+        startX: experienceCanvas.width, // Start from right for wave2
+        endX: experienceCanvas.width * (2/3) // End at the middle of canvas
+    };
 
+    const superpositionWave = {
+        y: experienceCanvas.height / 2,
+        length: 0.05,
+        amplitude: 100,
+        frequency: 0.05
+    };
+
+    let increment1 = wave1.frequency;
+    let increment2 = wave2.frequency;
+    let incrementSuperposition = superpositionWave.frequency;
+
+    function animateExperience() {
+        requestAnimationFrame(animateExperience);
+        ctxExperience.clearRect(0, 0, experienceCanvas.width, experienceCanvas.height);
+
+        // Draw wave1 rectangle
+        ctxExperience.fillStyle = 'rgba(0, 1, 51, 0.1)'; // Translucent fill for rectangle
+        ctxExperience.fillRect(0, 0, wave1.endX, 100); // Rectangle for wave1
+
+        // Draw wave1
+        ctxExperience.beginPath();
+        ctxExperience.moveTo(wave1.startX, wave1.y);
+        for (let i = wave1.startX; i < wave1.endX; i++) {
+            ctxExperience.lineTo(i, wave1.y + Math.cos(i * wave1.length + increment1) * wave1.amplitude);
+        }
+        ctxExperience.strokeStyle = 'rgba(0, 1, 51, 1)';
+        ctxExperience.stroke();
+
+        // Draw wave2 rectangle
+        ctxExperience.fillStyle = 'rgba(151, 0, 78, 0.1)'; // Translucent fill for rectangle
+        ctxExperience.fillRect(wave2.endX, 0, wave2.startX - wave2.endX, 100); // Rectangle for wave2
+
+        // Draw wave2
+        ctxExperience.beginPath();
+        ctxExperience.moveTo(wave2.startX, wave2.y);
+        for (let i = wave2.startX; i > wave2.endX; i--) {
+            ctxExperience.lineTo(i, wave2.y + Math.sin(i * wave2.length + increment2) * wave2.amplitude);
+        }
+        ctxExperience.strokeStyle = 'rgba(151, 0, 78, 1)';
+        ctxExperience.stroke();
+
+        // Draw superpositionWave (middle wave)
+        ctxExperience.beginPath();
+        ctxExperience.moveTo(0, superpositionWave.y);
+        for (let i = 0; i < experienceCanvas.width; i++) {
+            // Superposition wave is sum of wave1 and wave2
+            const superpositionY = superpositionWave.y +
+                                  (Math.sin(i * wave1.length + increment1) * wave1.amplitude +
+                                   Math.sin(i * wave2.length + increment2) * wave2.amplitude) / 2; // Average of wave1 and wave2
+            ctxExperience.lineTo(i, superpositionY);
+        }
+        ctxExperience.strokeStyle = 'rgba(82,50,66, 1)';
+        ctxExperience.stroke();
+
+        increment1 += wave1.frequency;
+        increment2 += wave2.frequency;
+        incrementSuperposition += superpositionWave.frequency;
+    }
+
+    animateExperience();
+
+    // ... [rest of the code]
 });

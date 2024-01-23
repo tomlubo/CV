@@ -97,7 +97,7 @@ section {
 }
 #about {
     position: relative;
-    height: 100vh;
+    min-height: 110vh;
     background: linear-gradient(359deg, rgb(48, 3, 69,1) 0%, rgba(0, 1, 51, 1) 100%);
     background-attachment: fixed;  /* This ensures the background stays fixed */
     background-repeat: repeat;  /* This prevents the background from repeating */

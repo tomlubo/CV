@@ -412,42 +412,75 @@ function disperseCircles(circles) {
     experienceCanvas.width = window.innerWidth;
     experienceCanvas.height = experienceCanvas.offsetHeight + 200;
 
+    function randomizeWaveProperties(wave) {
+        const minFrequency = 0.01;
+        const maxFrequency = 0.2;
+        const minLength = 0.01;
+        const maxLength = 0.2;
+
+        // Randomize frequency and length within bounds
+        wave.frequency = minFrequency + Math.random() * (maxFrequency - minFrequency);
+        wave.length = minLength + Math.random() * (maxLength - minLength);
+
+        // Initialize change rates
+        wave.frequencyChangeRate =  0.00005 + Math.random() * (0.00012 - 0.00005); // Adjust this value as needed
+        wave.lengthChangeRate = 0.00005 + Math.random() * (0.00012 - 0.00005); // Adjust this value as needed
+    }
+
     const wave1 = {
-        y: 50,
-        length: 0.05,
-        amplitude: 50,
-        frequency: 0.05,
-        startX: 0, // Start from left for wave1
-        endX: experienceCanvas.width /3 // End at the middle of canvas
+        y: experienceCanvas.height * (1/11),
+        length: null, // To be randomized
+        amplitude: 45,
+        frequency: null, // To be randomized
+        startX: 0,
+        endX: experienceCanvas.width *(1/3)
     };
 
     const wave2 = {
-        y: 50,
-        length: 0.6,
-        amplitude: 50,
-        frequency: 0.1,
-        startX: experienceCanvas.width, // Start from right for wave2
-        endX: experienceCanvas.width * (2/3) // End at the middle of canvas
+        y: experienceCanvas.height * (1/11),
+        length: null, // To be randomized
+        amplitude: 45,
+        frequency: null, // To be randomized
+        startX: experienceCanvas.width,
+        endX: experienceCanvas.width *(2/3)
     };
+    randomizeWaveProperties(wave1);
+    randomizeWaveProperties(wave2);
 
     const superpositionWave = {
-        y: experienceCanvas.height / 2,
+        y: experienceCanvas.height *(3/10),
         length: 0.05,
-        amplitude: 100,
+        amplitude: 800,
         frequency: 0.05
     };
 
     let increment1 = wave1.frequency;
     let increment2 = wave2.frequency;
     let incrementSuperposition = superpositionWave.frequency;
+    function updateWaveProperties(wave) {
+       // Change frequency
+       wave.frequency += wave.frequencyChangeRate;
+       if (wave.frequency > 0.2 || wave.frequency < 0.01) {
+           // Reverse direction if limits are reached
+           wave.frequencyChangeRate *= -1;
+       }
+
+       // Change length
+       wave.length += wave.lengthChangeRate;
+       if (wave.length > 0.2 || wave.length < 0.01) {
+           // Reverse direction if limits are reached
+           wave.lengthChangeRate *= -1;
+       }
+     }
+
 
     function animateExperience() {
         requestAnimationFrame(animateExperience);
         ctxExperience.clearRect(0, 0, experienceCanvas.width, experienceCanvas.height);
 
         // Draw wave1 rectangle
-        ctxExperience.fillStyle = 'rgba(0, 1, 51, 0.1)'; // Translucent fill for rectangle
-        ctxExperience.fillRect(0, 0, wave1.endX, 100); // Rectangle for wave1
+        ctxExperience.fillStyle = 'rgba(0, 10, 51, 0.2)'; // Translucent fill for rectangle
+        ctxExperience.fillRect(0, 50, wave1.endX, 100); // Rectangle for wave1
 
         // Draw wave1
         ctxExperience.beginPath();
@@ -459,14 +492,14 @@ function disperseCircles(circles) {
         ctxExperience.stroke();
 
         // Draw wave2 rectangle
-        ctxExperience.fillStyle = 'rgba(151, 0, 78, 0.1)'; // Translucent fill for rectangle
-        ctxExperience.fillRect(wave2.endX, 0, wave2.startX - wave2.endX, 100); // Rectangle for wave2
+        ctxExperience.fillStyle = 'rgba(191, 0, 78, 0.1)'; // Translucent fill for rectangle
+        ctxExperience.fillRect(wave2.endX, 50, wave2.startX - wave2.endX, 100); // Rectangle for wave2
 
         // Draw wave2
         ctxExperience.beginPath();
         ctxExperience.moveTo(wave2.startX, wave2.y);
         for (let i = wave2.startX; i > wave2.endX; i--) {
-            ctxExperience.lineTo(i, wave2.y + Math.sin(i * wave2.length + increment2) * wave2.amplitude);
+            ctxExperience.lineTo(i, wave2.y + Math.cos(i * wave2.length + increment2) * wave2.amplitude);
         }
         ctxExperience.strokeStyle = 'rgba(151, 0, 78, 1)';
         ctxExperience.stroke();
@@ -474,22 +507,55 @@ function disperseCircles(circles) {
         // Draw superpositionWave (middle wave)
         ctxExperience.beginPath();
         ctxExperience.moveTo(0, superpositionWave.y);
-        for (let i = 0; i < experienceCanvas.width; i++) {
-            // Superposition wave is sum of wave1 and wave2
-            const superpositionY = superpositionWave.y +
-                                  (Math.sin(i * wave1.length + increment1) * wave1.amplitude +
-                                   Math.sin(i * wave2.length + increment2) * wave2.amplitude) / 2; // Average of wave1 and wave2
-            ctxExperience.lineTo(i, superpositionY);
-        }
-        ctxExperience.strokeStyle = 'rgba(82,50,66, 1)';
-        ctxExperience.stroke();
+        for (let i = 0; i < experienceCanvas.width - 1; i++) {
+            // Calculate the y values for this point and the next point
+            const superpositionY1 = superpositionWave.y +
+                                    (Math.sin(i * wave1.length + increment1) * wave1.amplitude +
+                                     Math.sin(i * wave2.length + increment2) * wave2.amplitude) ;
+            const superpositionY2 = superpositionWave.y +
+                                    (Math.sin((i + 1) * wave1.length + increment1) * wave1.amplitude +
+                                     Math.sin((i + 1) * wave2.length + increment2) * wave2.amplitude) ;
 
-        increment1 += wave1.frequency;
-        increment2 += wave2.frequency;
+            // Create a gradient for this segment
+            const gradient = ctxExperience.createLinearGradient(i, superpositionY1, i + 1, superpositionY2);
+            gradient.addColorStop(0, 'rgba(0, 1, 51, 1)');
+            gradient.addColorStop(1, 'rgba(151, 0, 78, 1)');
+
+            // Draw this segment with the gradient
+            ctxExperience.beginPath();
+            ctxExperience.moveTo(i, superpositionY1);
+            ctxExperience.lineTo(i + 1, superpositionY2);
+            ctxExperience.strokeStyle = gradient;
+            ctxExperience.stroke();
+        }
+        updateWaveProperties(wave1);
+        updateWaveProperties(wave2);
+
+        // increment1 = updateWaveProperties(wave1, increment1);
+        // increment2 = updateWaveProperties(wave2, increment2);
+
         incrementSuperposition += superpositionWave.frequency;
     }
 
-    animateExperience();
+    const experienceObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Rerandomize properties of wave1 and wave2 when section comes into view
+                randomizeWaveProperties(wave1);
+                randomizeWaveProperties(wave2);
+
+                // Reset increments to restart the animation from its current state
+                increment1 = wave1.frequency;
+                increment2 = wave2.frequency;
+
+                // Optionally clear the canvas and restart the animation
+                ctxExperience.clearRect(0, 0, experienceCanvas.width, experienceCanvas.height);
+                animateExperience(); // Restart the animation if needed
+            }
+        });
+    }, {threshold: 0.2});
+    experienceObserver.observe(document.getElementById('experience'));
+
 
     // ... [rest of the code]
 });
